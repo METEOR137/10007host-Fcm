@@ -19,7 +19,7 @@ jobs:
           grep -v -e 'mtalk.google.com' -e 'dl.google.com' -e 'dl.l.google.com' original_hosts > filtered_hosts
           
           # 添加文件头信息
-          echo "# Filtered hosts file" > final_hosts
+          echo "# Filtered hosts file" > 10007.txt
           echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> final_hosts
           echo "# Original source: https://raw.githubusercontent.com/lingeringsound/10007/main/all" >> final_hosts
           echo "" >> final_hosts
