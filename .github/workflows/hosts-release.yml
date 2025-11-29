@@ -18,12 +18,12 @@ jobs:
           # 过滤掉不需要的域名
           grep -v -e 'mtalk.google.com' -e 'dl.google.com' -e 'dl.l.google.com' original_hosts > filtered_hosts
           
-          # 添加文件头信息
+          # 添加文件头信息并命名为10007.txt
           echo "# Filtered hosts file" > 10007.txt
-          echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> final_hosts
-          echo "# Original source: https://raw.githubusercontent.com/lingeringsound/10007/main/all" >> final_hosts
-          echo "" >> final_hosts
-          cat filtered_hosts >> final_hosts
+          echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> 10007.txt
+          echo "# Original source: https://raw.githubusercontent.com/lingeringsound/10007/main/all" >> 10007.txt
+          echo "" >> 10007.txt
+          cat filtered_hosts >> 10007.txt
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -36,6 +36,6 @@ jobs:
               - *mtalk.google.com
               - dl.google.com
               - dl.l.google.com
-          files: final_hosts
+          files: 10007.txt  # 修改文件名
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
