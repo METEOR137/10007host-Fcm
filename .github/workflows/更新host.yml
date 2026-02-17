@@ -1,0 +1,50 @@
+name: 更新hosts 
+
+on:
+  workflow_dispatch: # 允许手动触发
+  schedule:
+    - cron: '0 0 * * *' # 每天 UTC 午夜自动运行
+
+# 安全最佳实践：最小权限
+permissions:
+  contents: write
+
+jobs:
+  process-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate filtered 10007.txt
+        id: generate
+        run: |
+          DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+          # 直接管道处理：下载 → 过滤 → 添加文件头（无中间临时文件）
+          {
+            echo "# Filtered hosts file"
+            echo "# Generated at $DATE"
+            echo "# Original source: https://raw.githubusercontent.com/lingeringsound/10007/main/all"
+            echo ""
+            curl -f -sL https://raw.githubusercontent.com/lingeringsound/10007/main/all | \
+              grep -v -e 'mtalk.google.com' -e 'dl.google.com' -e 'dl.l.google.com'
+          } > 10007.txt
+
+          echo "✅ Generated 10007.txt ($(wc -l < 10007.txt) lines)"
+
+      - name: Create / Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: hosts          # 固定 tag，每次运行会自动更新 release（推荐做法）
+          name: "Filtered Hosts"
+          body: |
+            Auto-generated filtered hosts file
+
+            - Removed entries containing:
+              - `mtalk.google.com`
+              - `dl.google.com`
+              - `dl.l.google.com`
+            - Generated at: ${{ steps.generate.outputs.date }}
+            - Original source: https://raw.githubusercontent.com/lingeringsound/10007/main/all
+          files: 10007.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
